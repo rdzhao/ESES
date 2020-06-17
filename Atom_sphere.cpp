@@ -18,12 +18,8 @@ Atom::Atom(CVector3d center_pos,double radius,int n){
 Atom::~Atom(){
 	
 }
+
 void Atom::initialize_atom(int num_atoms){
 	//adj_torus_list.resize(num_atoms);
 	is_chosen = false;
 }
-
-
-
-
-

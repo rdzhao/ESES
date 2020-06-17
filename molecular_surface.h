@@ -7,7 +7,7 @@ This header file is for computing the molecular surface based on paper
    By Michael L. Connolly 1983
 
 Format for Input:
-//*.xyzr file containing the atom information
+// ".xyzr" file containing the atom information
 //probe raidus
 //grid size
 //extension of the bounding box
@@ -2425,20 +2425,29 @@ void accum_surface_area(grid_pointIter point1,grid_pointIter point2,CVector3d in
    return 1;
  }
 
-int partition_area(){
+int partition_area(int a, int b, int c, int block_size){
    m_partition_area.assign(m_atoms_vec.size(),0);
    for(int i=0; i<m_intersection_points.size(); i++)
      {
+		if((m_intersection_interior[i]->grid_x==a*block_size+m_x_num-1 && m_intersection_outside[i]->grid_x==a*block_size+m_x_num-1) 
+       || (m_intersection_interior[i]->grid_y==b*block_size+m_y_num-1 && m_intersection_outside[i]->grid_y==b*block_size+m_y_num-1)
+       || (m_intersection_interior[i]->grid_z==c*block_size+m_z_num-1 && m_intersection_outside[i]->grid_z==c*block_size+m_z_num-1)){
+      		//cout<<"********************Omitted!!!!!!!!!!!"<<endl;
+			  continue;
+	   		
+	   }
+
+
        if(m_intersection_types[i]==0)
 	 {
-	   /*	   
+	   	   
 	   if(m_intersection_interior[i]->grid_x!=m_intersection_outside[i]->grid_x)
 	     m_partition_area[(m_intersection_cell[i].current_atom)->index]+=m_area_unit*fabs(m_intersection_normals[i][0]);
 	   else if(m_intersection_interior[i]->grid_y!=m_intersection_outside[i]->grid_y)
 	     m_partition_area[(m_intersection_cell[i].current_atom)->index]+=m_area_unit*fabs(m_intersection_normals[i][1]);
 	   else
 	     m_partition_area[(m_intersection_cell[i].current_atom)->index]+=m_area_unit*fabs(m_intersection_normals[i][2]);
-	   */
+	   
 	 }
        else if(m_intersection_types[i]==1)
 	 {
@@ -2465,10 +2474,12 @@ int partition_area(){
 	 }
        else
 	 {
-	   /*
+	   
 	   double d_0=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->r,2);
 	   double d_1=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_concave->index_j]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_concave->index_j]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_concave->index_j]->r,2);
 	   double d_2=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->r,2);
+
+		//cout<<d_0<<" "<<d_1<<" "<<d_2<<endl;
 
 	   if(m_intersection_interior[i]->grid_x!=m_intersection_outside[i]->grid_x)
 	     {
@@ -2488,11 +2499,18 @@ int partition_area(){
 	       m_partition_area[m_intersection_cell[i].current_concave->index_j]+=m_area_unit*fabs(m_intersection_normals[i][2])*(1/d_1/(1/d_0+1/d_1+1/d_2));
 	       m_partition_area[m_intersection_cell[i].current_concave->index_k]+=m_area_unit*fabs(m_intersection_normals[i][2])*(1/d_2/(1/d_0+1/d_1+1/d_2));
 	     }
-	   */
+	   
 	 }
      }
    return 1;
 }
+
+//int export_partition_area(vector<double>& t_partition_area){
+//	for(int i=0; i<m_partition_area.size(); ++i){
+//		cout<<i<<" "<<m_local_to_global_atom_idx[i]<<endl;
+//		t_partition_area[m_local_to_global_atom_idx[i]] += m_partition_area[i];
+//	}
+//}
 
 int process_each_grid_edge(grid_pointIter point_inside, grid_pointIter point_outside,std::vector<CVector3d> &intersect_points,
 			   std::vector<CVector3d> &intersect_normal,std::vector<int> &intersect_type,std::vector<cell_unit> &intersect_cell){

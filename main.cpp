@@ -46,7 +46,7 @@ the index/indice of the corresponding atoms
 //
 //******/
 
-#define BLOCK_SIZE 63//grid block-1 
+#define BLOCK_SIZE 63 //grid block-1 
 
 class basic_info
 {
@@ -131,7 +131,7 @@ public:
     bi.t_max_x = bi.t_min_x + (bi.t_x_num - 1)*bi.m_x_step;
     bi.t_max_y = bi.t_min_y + (bi.t_y_num - 1)*bi.m_y_step;
     bi.t_max_z = bi.t_min_z + (bi.t_z_num - 1)*bi.m_z_step;
-    
+
     //m_min_x += ((m_x_num + 1) / 2)*m_x_step;
     //m_min_y += ((m_y_num + 1) / 2)*m_y_step;
     //m_min_z += ((m_z_num + 1) / 2)*m_z_step;
@@ -259,7 +259,7 @@ void compute_volume(double &total_volume, std::vector<bool> t_grid_status, std::
   }*/
 }
 
-void output_info(std::vector<bool> t_grid_status, basic_info bi){
+void output_info(std::vector<bool>& t_grid_status, vector<double>& t_partition_area, basic_info bi){
 	//output each grid point location and whether it is inside (1) or outside (-1)
 	std::ofstream file_grid("grid_info.txt");
 	/*for(int i=0;i<m_grid_points.size();i++){
@@ -294,14 +294,14 @@ void output_info(std::vector<bool> t_grid_status, basic_info bi){
 	file_bounding.close();
 
 	//output the partition area. atom index and corresponding area
-	//std::ofstream file_partition("partition_area.txt");
-	//for(int i=0; i<m_atoms_vec.size(); i++)
-	//{
-	//file_partition<<i<<" ";
-	//file_partition<<std::scientific;
-	//file_partition<<m_partition_area[i]<<endl;
-	//}
-	//file_partition.close();
+	std::ofstream file_partition("partition_area.txt");
+	for(int i=0; i<bi.m_N_atoms; i++)
+	{
+	  file_partition<<i<<" ";
+	  file_partition<<std::scientific;
+	  file_partition<<t_partition_area[i]<<endl;
+	}
+	file_partition.close();
 
 
 }
@@ -330,6 +330,9 @@ void process_molecular_surface_newer(double probe_radius,double grid_size,double
   for(int i=0; i<t_grid_regularity.size(); i++)
     t_grid_regularity[i]=true;
   
+  vector<double> t_partition_area;
+  t_partition_area.resize(bi.m_N_atoms, 0);
+
   double total_surface_area, total_volume;
   total_surface_area=0;
   total_volume=0;
@@ -438,13 +441,29 @@ void process_molecular_surface_newer(double probe_radius,double grid_size,double
 #pragma omp critical
 	  {
     //cout<<"output intersection..."<<endl;
-    int block_size=BLOCK_SIZE;
-	ms.output_intersection(first_write, a, b, c, block_size, index);
+    //int block_size=BLOCK_SIZE;
+	ms.output_intersection(first_write, a, b, c, BLOCK_SIZE, index);
   }	
           /*int for_amino = 0;
 	    if (for_amino == 1)
 	    read_pqr_and_classify_inte_points("1ajj.pqr");*/
 	  //cout<<"clean memory..."<<endl;
+
+    // compute partition area
+    ms.partition_area(a, b, c, BLOCK_SIZE);
+
+#pragma omp critical
+	  {
+      //cout<<"Exporting partition area!!!"<<endl;
+     // ms.export_partition_area(t_partition_area);
+      
+      for(int i=0; i<ms.m_partition_area.size(); ++i){
+		    //cout<<i<<" "<<ms.m_local_to_global_atom_idx[i]<<endl;
+		    t_partition_area[ms.m_local_to_global_atom_idx[i]] += ms.m_partition_area[i];
+  	  }
+      
+      //cout<<"Exporting done!!!"<<endl;
+    }
 	  ms.clean_memory();
 	  
 	  
@@ -475,10 +494,8 @@ void process_molecular_surface_newer(double probe_radius,double grid_size,double
   //by = block_dim_y;
   //bz = block_dim_z;
 
-  //ms.partition_area();
-	
   std::cout << "output info into the files..." << std::endl;
-  output_info(t_grid_status, bi);
+  output_info(t_grid_status, t_partition_area, bi);
   //std::cout<<"clean the memory..."<<std::endl;
 }
 

@@ -1,5 +1,5 @@
 #ifndef _SADDLE_FACE_
-#define _SADDLE_FACE
+#define _SADDLE_FACE_
 
 #include "types.h"
 #include "Vector3d.h"
