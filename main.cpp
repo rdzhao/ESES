@@ -29,6 +29,7 @@ the index/indice of the corresponding atoms
 
 #include <time.h>
 #include <chrono>
+#include <numeric>
 #include <omp.h>
 #include "molecular_surface.h"
 
@@ -298,11 +299,13 @@ void output_info(std::vector<bool>& t_grid_status, vector<double>& t_partition_a
 	for(int i=0; i<bi.m_N_atoms; i++)
 	{
 	  file_partition<<i<<" ";
-	  file_partition<<std::scientific;
+	  //file_partition<<std::scientific;
 	  file_partition<<t_partition_area[i]<<endl;
 	}
 	file_partition.close();
 
+  int sum = accumulate(t_partition_area.begin(), t_partition_area.end(), 0.0);
+  cout<<"Total area from partition: "<<sum<<endl;
 
 }
 
@@ -332,6 +335,7 @@ void process_molecular_surface_newer(double probe_radius,double grid_size,double
   
   vector<double> t_partition_area;
   t_partition_area.resize(bi.m_N_atoms, 0);
+  double t_area_from_partition = 0;
 
   double total_surface_area, total_volume;
   total_surface_area=0;
@@ -442,7 +446,7 @@ void process_molecular_surface_newer(double probe_radius,double grid_size,double
 	  {
     //cout<<"output intersection..."<<endl;
     //int block_size=BLOCK_SIZE;
-	ms.output_intersection(first_write, a, b, c, BLOCK_SIZE, index);
+	  ms.output_intersection(first_write, a, b, c, BLOCK_SIZE, index);
   }	
           /*int for_amino = 0;
 	    if (for_amino == 1)
@@ -458,10 +462,10 @@ void process_molecular_surface_newer(double probe_radius,double grid_size,double
      // ms.export_partition_area(t_partition_area);
       
       for(int i=0; i<ms.m_partition_area.size(); ++i){
-		    //cout<<i<<" "<<ms.m_local_to_global_atom_idx[i]<<endl;
+		    //cout<<i<<" "<<ms.m_local_to_global_atom_idx[i]<<" "<<ms.m_partition_area[i]<<endl;
 		    t_partition_area[ms.m_local_to_global_atom_idx[i]] += ms.m_partition_area[i];
-  	  }
-      
+      }
+
       //cout<<"Exporting done!!!"<<endl;
     }
 	  ms.clean_memory();
@@ -476,6 +480,7 @@ void process_molecular_surface_newer(double probe_radius,double grid_size,double
 #pragma omp critical
 	  {
 	    total_surface_area+=ms.m_surface_area;
+      cout<<"Area: "<<ms.m_surface_area <<" "<<ms.m_area_from_partition<<" "<<ms.m_another_area_from_partiion<<endl;
 	  }
 	  //total_volume+=ms.m_surface_volume;
 	}

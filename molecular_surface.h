@@ -138,6 +138,8 @@ public:
 	double m_area_unit, m_volume_unit; //area unit: h^2; volume unit: h^3
 	std::vector<double> m_partition_area; //store the area on each atom;
 	std::map<int, int> m_local_to_global_atom_idx;
+	double m_area_from_partition;
+	double m_another_area_from_partiion;
 
 
 	molecular_surface(){	
@@ -2426,82 +2428,88 @@ void accum_surface_area(grid_pointIter point1,grid_pointIter point2,CVector3d in
  }
 
 int partition_area(int a, int b, int c, int block_size){
-   m_partition_area.assign(m_atoms_vec.size(),0);
-   for(int i=0; i<m_intersection_points.size(); i++)
-     {
+   	m_partition_area.resize(m_atoms_vec.size(),0);
+
+   	m_area_from_partition = 0;
+	m_another_area_from_partiion = 0;
+   	for(int i=0; i<m_intersection_points.size(); i++){
 		if((m_intersection_interior[i]->grid_x==a*block_size+m_x_num-1 && m_intersection_outside[i]->grid_x==a*block_size+m_x_num-1) 
-       || (m_intersection_interior[i]->grid_y==b*block_size+m_y_num-1 && m_intersection_outside[i]->grid_y==b*block_size+m_y_num-1)
-       || (m_intersection_interior[i]->grid_z==c*block_size+m_z_num-1 && m_intersection_outside[i]->grid_z==c*block_size+m_z_num-1)){
-      		//cout<<"********************Omitted!!!!!!!!!!!"<<endl;
-			  continue;
-	   		
-	   }
+       		|| (m_intersection_interior[i]->grid_y==b*block_size+m_y_num-1 && m_intersection_outside[i]->grid_y==b*block_size+m_y_num-1)
+       		|| (m_intersection_interior[i]->grid_z==c*block_size+m_z_num-1 && m_intersection_outside[i]->grid_z==c*block_size+m_z_num-1)){
+			  	continue;
+	   		}
 
+		double unit_x = m_area_unit*fabs(m_intersection_normals[i][0]);
+		double unit_y = m_area_unit*fabs(m_intersection_normals[i][1]);
+		double unit_z = m_area_unit*fabs(m_intersection_normals[i][2]);
 
-       if(m_intersection_types[i]==0)
-	 {
-	   	   
-	   if(m_intersection_interior[i]->grid_x!=m_intersection_outside[i]->grid_x)
-	     m_partition_area[(m_intersection_cell[i].current_atom)->index]+=m_area_unit*fabs(m_intersection_normals[i][0]);
-	   else if(m_intersection_interior[i]->grid_y!=m_intersection_outside[i]->grid_y)
-	     m_partition_area[(m_intersection_cell[i].current_atom)->index]+=m_area_unit*fabs(m_intersection_normals[i][1]);
-	   else
-	     m_partition_area[(m_intersection_cell[i].current_atom)->index]+=m_area_unit*fabs(m_intersection_normals[i][2]);
-	   
-	 }
-       else if(m_intersection_types[i]==1)
-	 {
-	   
-	   double d_0=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_torus->atom_i->index]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_torus->atom_i->index]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_torus->atom_i->index]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_torus->atom_i->index]->r,2);
-	   double d_1=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_torus->atom_j->index]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_torus->atom_j->index]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_torus->atom_j->index]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_torus->atom_j->index]->r,2);
-	   
-	   if(m_intersection_interior[i]->grid_x!=m_intersection_outside[i]->grid_x)
-	     {      
-	       m_partition_area[m_intersection_cell[i].current_torus->atom_i->index]+=m_area_unit*fabs(m_intersection_normals[i][0])*(d_1/(d_0+d_1));
-	       m_partition_area[m_intersection_cell[i].current_torus->atom_j->index]+=m_area_unit*fabs(m_intersection_normals[i][0])*(d_0/(d_0+d_1));
-	       }
-	   else if(m_intersection_interior[i]->grid_y!=m_intersection_outside[i]->grid_y)
-	     {
-	       m_partition_area[m_intersection_cell[i].current_torus->atom_i->index]+=m_area_unit*fabs(m_intersection_normals[i][1])*(d_1/(d_0+d_1));
-	       m_partition_area[m_intersection_cell[i].current_torus->atom_j->index]+=m_area_unit*fabs(m_intersection_normals[i][1])*(d_0/(d_0+d_1));
-	       }
-	   else
-	     {
-	       m_partition_area[m_intersection_cell[i].current_torus->atom_i->index]+=m_area_unit*fabs(m_intersection_normals[i][2])*(d_1/(d_0+d_1));
-	       m_partition_area[m_intersection_cell[i].current_torus->atom_j->index]+=m_area_unit*fabs(m_intersection_normals[i][2])*(d_0/(d_0+d_1));
-	       }
-	   
-	 }
-       else
-	 {
-	   
-	   double d_0=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_concave->index_i]->r,2);
-	   double d_1=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_concave->index_j]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_concave->index_j]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_concave->index_j]->r,2);
-	   double d_2=pow((m_intersection_points[i][0]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[0]),2)+pow((m_intersection_points[i][1]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[1]),2)+pow((m_intersection_points[i][2]-m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->center[2]),2)-pow(m_atoms_vec[m_intersection_cell[i].current_concave->index_k]->r,2);
+		bool on_x = (m_intersection_interior[i]->grid_x!=m_intersection_outside[i]->grid_x);
+		bool on_y = (m_intersection_interior[i]->grid_y!=m_intersection_outside[i]->grid_y);
+		bool on_z = (m_intersection_interior[i]->grid_z!=m_intersection_outside[i]->grid_z);
 
-		//cout<<d_0<<" "<<d_1<<" "<<d_2<<endl;
+		double unit;
+		if(on_x) unit = unit_x;
+		else if(on_y) unit = unit_y;
+		else unit = unit_z;
 
-	   if(m_intersection_interior[i]->grid_x!=m_intersection_outside[i]->grid_x)
-	     {
-	       m_partition_area[m_intersection_cell[i].current_concave->index_i]+=m_area_unit*fabs(m_intersection_normals[i][0])*(1/d_0/(1/d_0+1/d_1+1/d_2));
-	       m_partition_area[m_intersection_cell[i].current_concave->index_j]+=m_area_unit*fabs(m_intersection_normals[i][0])*(1/d_1/(1/d_0+1/d_1+1/d_2));
-	       m_partition_area[m_intersection_cell[i].current_concave->index_k]+=m_area_unit*fabs(m_intersection_normals[i][0])*(1/d_2/(1/d_0+1/d_1+1/d_2));
-	     }
-	   else if(m_intersection_interior[i]->grid_y!=m_intersection_outside[i]->grid_y)
-	     {
-	       m_partition_area[m_intersection_cell[i].current_concave->index_i]+=m_area_unit*fabs(m_intersection_normals[i][1])*(1/d_0/(1/d_0+1/d_1+1/d_2));
-	       m_partition_area[m_intersection_cell[i].current_concave->index_j]+=m_area_unit*fabs(m_intersection_normals[i][1])*(1/d_1/(1/d_0+1/d_1+1/d_2));
-	       m_partition_area[m_intersection_cell[i].current_concave->index_k]+=m_area_unit*fabs(m_intersection_normals[i][1])*(1/d_2/(1/d_0+1/d_1+1/d_2));
-	     }
-	   else
-	     {
-	       m_partition_area[m_intersection_cell[i].current_concave->index_i]+=m_area_unit*fabs(m_intersection_normals[i][2])*(1/d_0/(1/d_0+1/d_1+1/d_2));
-	       m_partition_area[m_intersection_cell[i].current_concave->index_j]+=m_area_unit*fabs(m_intersection_normals[i][2])*(1/d_1/(1/d_0+1/d_1+1/d_2));
-	       m_partition_area[m_intersection_cell[i].current_concave->index_k]+=m_area_unit*fabs(m_intersection_normals[i][2])*(1/d_2/(1/d_0+1/d_1+1/d_2));
-	     }
-	   
-	 }
-     }
+       	if(m_intersection_types[i] == 0){
+			int atom_i = m_intersection_cell[i].current_atom->index;
+			m_partition_area[atom_i] += unit;
+			m_area_from_partition += unit;
+	 	}
+       	else if(m_intersection_types[i] == 1){
+			int atom_i = m_intersection_cell[i].current_torus->atom_i->index;
+			int atom_j = m_intersection_cell[i].current_torus->atom_j->index;
+
+			double d_i = (m_intersection_points[i]-m_atoms_vec[atom_i]->center).Length() 
+						- m_atoms_vec[atom_i]->r;
+			double d_j = (m_intersection_points[i]-m_atoms_vec[atom_j]->center).Length() 
+						- m_atoms_vec[atom_j]->r;
+
+			double r_i = d_j/(d_i+d_j);
+			double r_j = d_i/(d_i+d_j);
+    
+	       	m_partition_area[atom_i] += unit*r_i;
+	       	m_partition_area[atom_j] += unit*r_j;
+			m_area_from_partition += unit;
+			//cout<<unit*r_i + unit*r_j - unit<<endl;
+			
+			//cout<<m_atoms_vec.size()<<" "<<atom_i<<" "<<atom_j<<endl;
+			//if(r_i+r_j != 1) cout<<(r_i+r_j)<<endl;
+	 	}
+       	else if(m_intersection_types[i] == 2){
+			int atom_i = m_intersection_cell[i].current_concave->index_i; 
+			int atom_j = m_intersection_cell[i].current_concave->index_j;
+			int atom_k = m_intersection_cell[i].current_concave->index_k;
+			
+			double d_i = (m_intersection_points[i]-m_atoms_vec[atom_i]->center).Length() 
+						- m_atoms_vec[atom_i]->r;
+			double d_j = (m_intersection_points[i]-m_atoms_vec[atom_j]->center).Length() 
+						- m_atoms_vec[atom_j]->r;
+			double d_k = (m_intersection_points[i]-m_atoms_vec[atom_k]->center).Length() 
+						- m_atoms_vec[atom_k]->r;
+
+			double r_d = 1/d_i + 1/d_j + 1/d_k;
+			double r_i = (1/d_i) / r_d;
+			double r_j = (1/d_j) / r_d;
+			double r_k = (1/d_k) / r_d;
+
+			//cout<<d_0<<" "<<d_1<<" "<<d_2<<endl;
+			//if(r_i+r_j+r_k != 1) cout<<(r_i+r_j+r_k)<<endl;
+
+	       	m_partition_area[atom_i] += unit*r_i;
+	       	m_partition_area[atom_j] += unit*r_j;
+	       	m_partition_area[atom_k] += unit*r_k;
+			m_area_from_partition += unit;
+			//cout<<unit*r_i + unit*r_j + unit*r_k - unit<<endl;
+	 	}
+    }
+
+	m_another_area_from_partiion = accumulate(m_partition_area.begin(), m_partition_area.end(), 0.0);
+	//for(int i=0; i<m_partition_area.size(); ++i){
+	//	m_another_area_from_partiion += m_partition_area[i];
+	//}
+
    return 1;
 }
 
