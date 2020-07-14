@@ -7,7 +7,7 @@ Software for Eulerian [solvent excluded surface](https://www.annualreviews.org/d
 Only OpenMP is required for parallel computation. 
 Make sure OpenMP is installed before compiling the source code.
 
-#Usage
+# Usage
 After compilation, An application "MS_Intersection" is generated. 
 User should provide 4 parameters.
 1) [.pqr file](https://www.mdanalysis.org/docs/documentation_pages/coordinates/PQR.html) decrsbing the molecules
@@ -15,7 +15,7 @@ User should provide 4 parameters.
 3) resolution
 4) grid margin
 
-#Output
+# Output
 There are 3 output files.
 1) bounding_box.txt: describing basic grid layout information.
 2) intersection_info.txt: describing intersctions by providing which grid edge the intersection lie on, the intersection point, normal, and which type of surface patch define by SES it belongs to.
