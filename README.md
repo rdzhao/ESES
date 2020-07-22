@@ -1,8 +1,8 @@
-![alt text](https://github.com/rdzhao/ESES/blob/master/fig/pipeline.png)
-![alt text](https://github.com/rdzhao/ESES/blob/master/fig/huge.png)
-
 # ESES
 Software for Eulerian [solvent excluded surface](https://www.annualreviews.org/doi/abs/10.1146/annurev.bb.06.060177.001055) (SES), which geneates the SES in a Eulerian regular grid with parallel treatment.
+
+![alt text](https://github.com/rdzhao/ESES/blob/master/fig/pipeline.png)
+![alt text](https://github.com/rdzhao/ESES/blob/master/fig/huge.png)
 
 # Compilation
 Only OpenMP is required for parallel computation. 
