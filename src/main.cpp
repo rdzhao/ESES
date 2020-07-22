@@ -34,6 +34,8 @@ the index/indice of the corresponding atoms
 #include "visualization/space_fill.h"
 #include "visualization/surface_patch.h"
 #include "visualization/intersection_visual.h"
+#include "visualization/chain_visual.h"
+#include "visualization/parallel_visual.h"
 
 //#include "viewer\Viewer.h"
 
@@ -72,6 +74,7 @@ int main(int argc, char *argv[]){
     std::cout <<CONSOLE_GREEN<< "Running time: " << elapsed_seconds.count() <<CONSOLE_WHITE<< std::endl;
 
     std::cout<<CONSOLE_YELLOW<<"Visualization ... "<<CONSOLE_WHITE<<std::endl;
+    /*
     // visualization: space fill
     space_fill sf(pp.getAtoms(), pp.getRadii(), pp.getType());
     sf.write();
@@ -86,6 +89,16 @@ int main(int argc, char *argv[]){
     intersection_visual iv(&pw);
     iv.compute();
     iv.write();
+
+    // visualization: chain
+    chain_visual cv(&pp, &pw, &mc);
+    cv.compute();
+    cv.write();
+    */
+
+    parallel_visual pv(&pw, &mc);
+    pv.compute();
+    pv.write();
 
     return 0;
 }

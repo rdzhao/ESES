@@ -15,10 +15,13 @@
 #include <chrono>
 #include <numeric>
 #include <algorithm>
+#include <limits>
 #include <omp.h>
 
 #define ZERO_TOL 1e-12
 #define PI 3.14159265358979323846264
+
+const int BLOCK_SIZE = 127;
 
 class Torus;
 class Atom;

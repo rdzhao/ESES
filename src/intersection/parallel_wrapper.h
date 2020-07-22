@@ -3,8 +3,6 @@
 
 #include "molecular_surface.h"
 
-const int BLOCK_SIZE = 63;
-
 class basic_information{
 public:
     double m_probe_radius;
@@ -48,6 +46,10 @@ public:
     basic_information& get_basic_info();
     intersection_info& get_intersection_info();
     std::vector<bool>& get_grid_status();
+
+    int get_block_dim_x();
+    int get_block_dim_y();
+    int get_block_dim_z();
 
     void process_molecular_surface();
 

@@ -10,6 +10,7 @@ private:
     std::vector<CVector3d> m_atoms;
     std::vector<double> m_radii;
     std::vector<AtomType> m_types;
+    std::vector<int> m_chain; 
 
 public:
     pqr_parser();
@@ -19,9 +20,9 @@ public:
     std::vector<CVector3d>& getAtoms();
     std::vector<double>& getRadii();
     std::vector<AtomType>& getType();
+    std::vector<int>& getChain();
 
     void parse();
 };
-
 
 #endif

@@ -72,6 +72,18 @@ std::vector<bool>& parallel_wrapper::get_grid_status(){
     return m_grid_status;
 }
 
+int parallel_wrapper::get_block_dim_x(){
+    return m_block_dim_x;
+}
+
+int parallel_wrapper::get_block_dim_y(){
+    return m_block_dim_y;
+}
+
+int parallel_wrapper::get_block_dim_z(){
+    return m_block_dim_z;
+}
+
 void parallel_wrapper::process_molecular_surface(){
     std::cout<<"Initialize ..."<<std::endl;
     initialize();
