@@ -58,6 +58,7 @@ int main(int argc, char *argv[]){
     std::cout<<CONSOLE_YELLOW<<"Parsing PQR file ... "<<CONSOLE_WHITE<<std::endl;
     pqr_parser pp(argv[1]);
     pp.parse();
+    pp.write_point_cloud();
 
     // generate catesian mesh
 	//process_molecular_surface_newer(atof(argv[2]), atof(argv[3]), atof(argv[4]), pp.getAtoms(), pp.getRadii());

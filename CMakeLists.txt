@@ -77,6 +77,10 @@ add_executable(MS_Intersection
     src/visualization/surface_patch.cpp
     src/visualization/intersection_visual.h
     src/visualization/intersection_visual.cpp
+    src/visualization/chain_visual.h
+    src/visualization/chain_visual.cpp
+    src/visualization/parallel_visual.h
+    src/visualization/parallel_visual.cpp
 
     src/intersection/molecular_surface.h
     src/intersection/molecular_surface.cpp

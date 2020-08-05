@@ -85,3 +85,12 @@ void pqr_parser::parse(){
 
     std::cout<<"Atom size: "<<m_atoms.size()<<std::endl;
 }
+
+void pqr_parser::write_point_cloud(){
+    std::ofstream out("point_cloud.txt");
+
+    for(int i=0; i<m_atoms.size(); ++i){
+        out<<m_atoms[i].x()<<" "<<m_atoms[i].y()<<" "<<m_atoms[i].z()<<std::endl;
+    }
+    out.close();
+}

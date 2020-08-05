@@ -23,6 +23,8 @@ public:
     std::vector<int>& getChain();
 
     void parse();
+
+    void write_point_cloud();
 };
 
 #endif
